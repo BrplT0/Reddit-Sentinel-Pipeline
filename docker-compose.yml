@@ -40,9 +40,9 @@ services:
       - .env
     entrypoint: sh -c "
       apt update && apt install -y cron && apt clean;
-
-      echo '0 1 * * 0 python /app/main.py' | crontab -;
-
+      
+      echo '0 2 * * 2 python /app/main.py' | crontab -;
+      
       cron -f"
 
 networks:
