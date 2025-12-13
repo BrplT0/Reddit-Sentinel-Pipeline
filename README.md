@@ -4,8 +4,9 @@
 
 [![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![PRAW](https://img.shields.io/badge/PRAW-7.7+-orange.svg)](https://praw.readthedocs.io/)
-[![Transformers](https://img.shields.io/badge/🤗%20Transformers-4.x-yellow.svg)](https://huggingface.co/transformers/)
+[![Transformers](https://img.shields.io/badge/%F0%9F%A4%97%20Transformers-4.x-yellow.svg)](https://huggingface.co/transformers/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ---
 
@@ -13,26 +14,31 @@
 
 This project leverages Reddit's vast user-generated content to analyze and visualize global happiness trends. By processing **hundreds of thousands of comments** weekly, we create a sentiment-based interactive dashboard showing which regions are happiest based on social media discourse.
 
-### 🎯 Current Status: **Ready for Deployment**
+### 🎯 Current Status: **Production Ready & Deployed**
 
-The complete pipeline is **production-ready**, featuring:
+The complete pipeline is **production-ready** with cloud automation, featuring:
 
 - 🗺️ **Interactive Choropleth Map** - Global happiness heatmap
 - 📈 **Time Series Analysis** - Track happiness trends over time
 - 🏆 **Top/Bottom Rankings** - Happiest and unhappiest countries
 - 🌐 **150+ Countries** - Comprehensive global coverage
+- ☁️ **Cloud GPU Analysis** - Automated Kaggle cloud processing
+- 🐋 **Docker Deployment** - Production-ready containerization
+- ⏰ **Automated Scheduling** - Weekly cron jobs
 
 ---
 
 ## ✨ Key Features
 
-- 🚀 **High-Throughput Scraper** - Optimized API usage with capacity of **~500,000 comments/hour**
+- 🚀 **High-Throughput Scraper** - Optimized API usage with capacity of **~350,000 comments/hour**
 - 🎯 **Geographic Filtering** - Target specific regions or analyze global data
-- ⚙️ **Flexible Backend** - Config-switchable between CPU multiprocessing and GPU acceleration
+- ⚙️ **Triple Backend Options** - CPU multiprocessing, local GPU, or **Kaggle cloud GPU automation**
 - 🤖 **Dual NLP Models** - Choose between XLM-RoBERTa (accurate) or DistilBERT (fast)
 - 🔧 **Highly Configurable** - Fine-tune scraping depth, approval thresholds, and time windows
 - ♻️ **Smart Caching** - Re-runnable pipeline skips redundant processing
 - 📦 **Efficient Archival** - Historical data compressed and preserved
+- 🐋 **Docker Support** - One-command deployment with docker-compose
+- ⏰ **Automated Scheduling** - Weekly cron jobs for hands-free operation
 
 ---
 
@@ -55,7 +61,7 @@ The complete pipeline is **production-ready**, featuring:
                  │
       ┌──────────▼──────────┐
       │  Comment Scraper    │  ✅ COMPLETE
-      │                     │  (Capacity: ~500K/hour)
+      │                     │  (Capacity: ~350K/hour)
       └──────────┬──────────┘
                  │
       ┌──────────▼──────────┐
@@ -65,7 +71,7 @@ The complete pipeline is **production-ready**, featuring:
                  │
       ┌──────────▼──────────┐
       │ Sentiment Analysis  │  ✅ COMPLETE
-      │                     │  (XLM-R, CPU/GPU compatible)
+      │                     │  (CPU/GPU/Kaggle Cloud)
       └──────────┬──────────┘
                  │
       ┌──────────▼──────────┐
@@ -103,6 +109,12 @@ The complete pipeline is **production-ready**, featuring:
 - **`python-dotenv`** - Environment variable handling
 - **`logging`** - Multiprocessing-safe logging
 
+### Deployment & Automation
+- **Docker** - Containerization
+- **Docker Compose** - Multi-service orchestration
+- **Cron** - Automated scheduling
+- **Kaggle API** - Cloud GPU automation
+
 ---
 
 ## 📂 Project Structure
@@ -128,7 +140,10 @@ RedditCountryHappinessAnalysis/
 │   ├── scrapers/                 # ✅ Data collection
 │   ├── utils/                    # ✅ Helper functions
 │   └── dashboard/                # ✅ Streamlit visualization
+├── .dockerignore                 # Docker ignore patterns
 ├── .env.example                  # ✅ API Key template
+├── Dockerfile                    # Docker container definition
+├── docker-compose.yml            # Multi-service orchestration
 ├── main.py                       # Main execution pipeline
 ├── requirements.txt              # Python dependencies
 ├── .gitignore
@@ -146,6 +161,8 @@ RedditCountryHappinessAnalysis/
 - **Python 3.11 or 3.12** (3.12 for CPU-only, 3.11 recommended for GPU/CUDA)
 - Reddit API credentials
 - **16GB+ RAM** (Recommended for CPU multiprocessing on large datasets)
+- **(Optional)** Kaggle account for cloud GPU automation
+- **(Optional)** Docker for containerized deployment
 
 ### Installation
 
@@ -228,39 +245,150 @@ post_comment_approve_limit = 50
 comment_link_limit = 32
 
 [analysis]
-# Hardware selection: "cpu" or "gpu"
-device_type = cpu
+# Hardware selection: "cpu", "gpu", or "kaggle_auto"
+device_type = kaggle_auto
 
 # CPU cores (only used if device_type = cpu)
 cpu_cores = 4
 
 # Model selection: "roberta" (accurate, 1.6GB) or "distilbert" (faster, 0.5GB)
-model_name = distilbert
+model_name = roberta
 ```
 
 > **Note:** The `/data` directory structure will be **automatically created** by the project when you first run `main.py`.
 
-### (Optional) Setup for GPU (NVIDIA/CUDA)
+### (Optional) Setup for Kaggle Cloud GPU Automation
 
-If you want to use an NVIDIA GPU for faster analysis:
+**NEW!** For the best performance without owning a GPU:
+
+**Step 1: Create Kaggle Account & Get API Credentials**
+
+1. Create a Kaggle account at [kaggle.com](https://www.kaggle.com)
+2. Go to your profile: Click your avatar (top right) → **Account** or visit [kaggle.com/settings](https://www.kaggle.com/settings)
+3. Scroll down to **API** section
+4. Click **"Create Legacy API Token"** - This downloads `kaggle.json`
+
+
+
+**Step 2: Install Kaggle API Credentials**
+
+```bash
+# Linux/Mac
+mkdir -p ~/.kaggle
+mv ~/Downloads/kaggle.json ~/.kaggle/
+chmod 600 ~/.kaggle/kaggle.json
+
+# Windows (PowerShell)
+mkdir $env:USERPROFILE\.kaggle -Force
+Move-Item $env:USERPROFILE\Downloads\kaggle.json $env:USERPROFILE\.kaggle\
+
+# Windows (Command Prompt)
+mkdir %USERPROFILE%\.kaggle
+move %USERPROFILE%\Downloads\kaggle.json %USERPROFILE%\.kaggle\
+```
+
+**Step 3: Verify Installation**
+
+```bash
+pip install kaggle
+kaggle datasets list  # Should show public datasets
+```
+
+**Step 4: Update `config.ini`**
+
+```ini
+[analysis]
+device_type = kaggle_auto
+model_name = roberta  # Kaggle GPUs handle XLM-RoBERTa easily
+```
+
+**How it works:**
+- Automatically uploads preprocessed data to Kaggle Dataset
+- Creates and executes a Kaggle Notebook with P100 GPU
+- Downloads sentiment results when complete
+- Zero local GPU required!
+
+> **Important Notes:**
+> - The `kaggle.json` file contains your API credentials - keep it secure
+> - Kaggle free tier provides 30 GPU hours per week
+> - First run may take 15-20 min (dataset upload + GPU warmup)
+> - Subsequent runs are faster (~10-15 min)
+
+### (Optional) Setup for Local GPU (NVIDIA/CUDA)
+
+If you want to use a local NVIDIA GPU for faster analysis:
 
 1. Ensure you are using **Python 3.11 or 3.12** (3.11 recommended for CUDA compatibility)
 2. Uninstall the CPU-only `torch`:
-   ```bash
-   pip uninstall torch
-   ```
+
+```bash
+pip uninstall torch
+```
+
 3. Install CUDA-enabled PyTorch (e.g., CUDA 12.1):
-   ```bash
-   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-   ```
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+
 4. Update `config.ini`:
-   ```ini
-   [analysis]
-   device_type = gpu
-   model_name = distilbert  # Recommended for GPUs with <4GB VRAM
-   ```
+
+```ini
+[analysis]
+device_type = gpu
+model_name = distilbert  # Recommended for GPUs with <4GB VRAM
+```
 
 > **GPU Requirements:** Minimum 3GB VRAM recommended. XLM-RoBERTa requires ~1.6GB, DistilBERT requires ~0.5GB.
+
+---
+
+## 🐋 Docker Deployment
+
+### Quick Start with Docker Compose
+
+The easiest way to deploy the entire stack:
+
+```bash
+# 1. Ensure .env and assets/subreddits.csv are configured
+# 2. Start all services
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Services
+
+**Dashboard Service** (`reddit-happiness-dashboard`)
+- Runs Streamlit on port 8501
+- Access at `http://localhost:8501`
+- Auto-restarts on failure
+
+**Pipeline Service** (`reddit-happiness-pipeline`)
+- Runs main.py for manual execution
+- Interactive mode enabled
+
+**Scheduler Service** (`reddit-happiness-scheduler`)
+- Automated weekly execution (Tuesday 2 AM)
+- Uses cron for scheduling
+- Timezone-aware
+
+### Manual Docker Build
+
+```bash
+# Build image
+docker build -t reddit-happiness .
+
+# Run dashboard only
+docker run -p 8501:8501 -v ./data:/app/data -v ./config:/app/config --env-file .env reddit-happiness streamlit run src/dashboard/app.py
+
+# Run pipeline manually
+docker run -v ./data:/app/data -v ./config:/app/config --env-file .env reddit-happiness python main.py
+```
 
 ---
 
@@ -280,37 +408,65 @@ The script is **re-runnable**. If it finds already processed data from today (`c
 streamlit run src/dashboard/app.py
 ```
 
+### With Docker
+
+```bash
+# Start dashboard (24/7 service)
+docker-compose up -d dashboard
+
+# Run pipeline manually
+docker-compose run pipeline
+
+# Enable automated weekly runs
+docker-compose up -d scheduler
+```
+
 ---
 
-## 📈 Performance Benchmarks (Local Machine)
+## 📈 Performance Benchmarks
 
 ### Scraping Performance
-- **~500,000 comments/hour** with optimized API usage
+- **~350,000 comments/hour** with optimized API usage (tested: 131K in 25 min)
 - **Comment depth:** 32 levels captures 99.9% of data without rate limits
 - **Geographic filtering:** Reduces processing time by targeting specific regions
 
 ### NLP Analysis Performance
 
+**Kaggle Cloud GPU (P100) - RECOMMENDED**
+- **XLM-RoBERTa:**
+  + 100,000+ comments: ~10-15 minutes
+  + Automatic orchestration via API
+  + Zero local hardware requirements
+  + Free tier: 30 hours/week GPU time
+
 **CPU Mode (Ryzen 5 8400F, 6 Cores)**
 - **XLM-RoBERTa:**
-  - 10,000 comments (Single-Core, `batch_size=64`): ~6 min 17 sec
-  - 14,000 comments (`Pool(4)`): ~21 minutes
+  + 10,000 comments (Single-Core, `batch_size=64`): ~6 min 17 sec
+  + 14,000 comments (`Pool(4)`): ~21 minutes
 - **DistilBERT:** (Estimated 2-3x faster than RoBERTa)
-  
+
 > *Note: Benchmarks on Windows with small datasets. Multiprocessing overhead is significant for small volumes. Linux performance with larger datasets will show greater parallelization benefits.*
 
-**GPU Mode**
+**Local GPU Mode**
 - **NVIDIA MX350 (2GB VRAM):**
-  - XLM-RoBERTa: ❌ `OutOfMemoryError` (model 1.6GB + batch data exceeds VRAM)
-  - DistilBERT: ✅ Expected to work (0.5GB model footprint)
+  + XLM-RoBERTa: ❌ `OutOfMemoryError` (model 1.6GB + batch data exceeds VRAM)
+  + DistilBERT: ✅ Expected to work (0.5GB model footprint)
 - **Recommended GPU:** 3GB+ VRAM (e.g., T4, RTX 3060) for XLM-RoBERTa
 
 ### Model Comparison
 
 | Model | VRAM Usage | CPU Speed | Accuracy | Recommended For |
 |-------|------------|-----------|----------|-----------------|
-| **XLM-RoBERTa** | ~1.6GB | Baseline | High | High-accuracy analysis, powerful GPUs |
-| **DistilBERT** | ~0.5GB | 2-3x faster | Good | Production VDS, limited resources |
+| **XLM-RoBERTa** | ~1.6GB | Baseline | High | Kaggle cloud, powerful GPUs |
+| **DistilBERT** | ~0.5GB | 2-3x faster | Good | CPU mode, limited VDS |
+
+### Backend Comparison
+
+| Backend | Speed | Cost | Best For |
+|---------|-------|------|----------|
+| **Kaggle Cloud** | ⚡⚡⚡ Fastest | 🆓 Free | Large datasets, no local GPU |
+| **Local GPU** | ⚡⚡ Very Fast | 💰 Hardware cost | Frequent runs, privacy needs |
+| **CPU Mode** | ⚡ Moderate | 🆓 Free | Small datasets, testing |
 
 ---
 
@@ -318,29 +474,43 @@ streamlit run src/dashboard/app.py
 
 ### Technical Achievements
 
-**1. Advanced Configuration System**
+**1. Cloud GPU Automation (NEW!)**
+- Implemented full Kaggle API integration for automated cloud processing
+- Built `KaggleAutomator` class for dataset upload, notebook execution, and result retrieval
+- Achieved 10x+ speedup vs local CPU without hardware investment
+- Handles authentication, error recovery, and status monitoring
+
+**2. Production Deployment Infrastructure**
+- Dockerized complete stack with multi-service orchestration
+- Implemented automated weekly scheduling with cron in containers
+- Configured timezone-aware scheduling for reliable execution
+- Volume mounting for persistent data across container restarts
+
+**3. Advanced Configuration System**
 - Built a comprehensive multi-section config supporting geographic filtering, threshold tuning, and hardware selection
-- Implemented dual-model support (XLM-RoBERTa vs DistilBERT) for different performance/accuracy tradeoffs
+- Implemented triple-backend support (CPU/GPU/Kaggle) with single config switch
 - Designed optimal comment depth limit (32 levels) to capture 99.9% of data without hitting API rate limits
 
-**2. Hardware Optimization**
+**4. Hardware Optimization**
 - Diagnosed GPU memory limitations: 2GB VRAM insufficient for XLM-RoBERTa (1.6GB model + batch data)
 - Validated DistilBERT as efficient alternative (0.5GB VRAM) for resource-constrained environments
 - Optimized CPU multiprocessing as reliable path for production VDS deployment
+- Discovered Kaggle cloud as ideal solution for GPU-level performance without hardware
 
-**3. Robust Error Handling**
+**5. Robust Error Handling**
 - `TypeError: NoneType`: Implemented `.fillna()` before processing API responses
 - `IndexError: 512`: Added `truncation=True, max_length=512` to handle token limits
 - `AssertionError: Torch not compiled`: Resolved CUDA vs CPU package compatibility
 
-**4. Pipeline Efficiency**
+**6. Pipeline Efficiency**
 - Idempotent design: Script checks for existing data, skips 20+ min scraping if present
 - Balanced scraping strategy: `comment_link_limit=32` avoids rate limits while maximizing data capture
 - Multiprocessing logging: Custom logger with `MainProcess` check prevents duplicate entries
 
-**5. Atomic Writes for Live Dashboard**
-- Solved data conflict (race condition) between the weekly pipeline (Writer) and the 7/24 dashboard (Reader). 
-- Implemented shutil.move to atomically swap .tmp files, ensuring the dashboard never reads a partially written CSV and never crashes.
+**7. Atomic Writes for Live Dashboard**
+- Solved data conflict (race condition) between the weekly pipeline (Writer) and the 7/24 dashboard (Reader)
+- Implemented `shutil.move` to atomically swap `.tmp` files, ensuring the dashboard never reads a partially written CSV and never crashes
+
 ---
 
 ## 🔮 Roadmap
@@ -352,23 +522,28 @@ streamlit run src/dashboard/app.py
 - [x] Multilingual sentiment analysis (XLM-RoBERTa)
 - [x] Country-level data aggregation
 - [x] Interactive Streamlit dashboard with choropleth map, time series, and rankings
+- [x] **Docker containerization**
+- [x] **Automated weekly scheduling with cron**
+- [x] **Kaggle cloud GPU automation**
 
-### 🚀 Next Steps: Deployment
-- [ ] Docker containerization
-- [ ] VDS deployment with automated weekly cronjob
-- [ ] Production monitoring and logging
+### 🚀 Current Focus: Production Optimization
+- [ ] VDS deployment with reverse proxy (Nginx)
+- [ ] SSL/HTTPS setup with Let's Encrypt
+- [ ] Production monitoring and alerting
+- [ ] Backup and disaster recovery system
 
 ### 🔜 Future Enhancements
 - [ ] Custom frontend development (replacing Streamlit)
-- [ ] Database migration evaluation (MongoDB or similar)
+- [ ] Database migration evaluation (PostgreSQL or MongoDB)
 - [ ] Email notification system for pipeline failures
-- [ ] Advanced time series forecasting
+- [ ] Advanced time series forecasting with ML
 - [ ] Multi-language UI support
-- [ ] API endpoint for data access
+- [ ] RESTful API endpoint for data access
 - [ ] Mobile-responsive frontend
 - [ ] Historical data comparison tools
-- [ ] Sentiment trend predictions
+- [ ] Sentiment trend predictions with LSTM/Transformer
 - [ ] Regional analysis (sub-national level)
+- [ ] Real-time streaming analysis
 
 ---
 
@@ -377,6 +552,7 @@ streamlit run src/dashboard/app.py
 - **No Test Suite**: Lacks automated unit tests (e.g., `pytest`)
 - **Manual Monitoring**: Production monitoring system not yet implemented
 - **CSV Storage**: May need database migration for long-term scalability
+- **Kaggle Rate Limits**: Free tier limited to 30 GPU hours/week
 
 ---
 
@@ -395,12 +571,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-<div align="center">
-
 ### ⭐ If you find this project interesting, please consider starring it!
 
-**Status**: 🚀 Ready for Deployment | 📊 Pipeline Complete | 🤖 NLP Optimized
+**Status**: 🚀 Production Ready | 🐋 Dockerized | ☁️ Cloud-Enabled | 📊 Pipeline Complete
 
 Built with ❤️ and ☕ | Learning by doing
-
-</div>
