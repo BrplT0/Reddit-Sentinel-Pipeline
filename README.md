@@ -206,7 +206,7 @@ mv assets/subreddits.template.csv assets/subreddits.csv
 
 # On Windows (CMD):
 cd assets
-ren subreddits.template.csv subreddits.csv
+ren subreddits.csv.template subreddits.csv
 cd ..
 
 # Edit the file if you want to add/remove subreddits
