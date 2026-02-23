@@ -1,4 +1,4 @@
-# 🌍 Reddit Country Happiness Analysis
+# 🌍 Reddit Sentinel Pipeline
 
 > A high-throughput data pipeline that scrapes, processes, and analyzes Reddit comments to create an interactive happiness visualization dashboard.
 
@@ -120,7 +120,7 @@ The complete pipeline is **production-ready** with cloud automation, featuring:
 ## 📂 Project Structure
 
 ```
-RedditCountryHappinessAnalysis/
+Reddit-Sentinel-Pipeline/
 ├── assets/
 │   ├── subreddits.csv            # 🔒 Populated list (Ignored by Git)
 │   └── subreddits.template.csv   # ✅ Public template (Tracked by Git)
@@ -168,8 +168,8 @@ RedditCountryHappinessAnalysis/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/BrplT0/RedditCountryHappinessAnalysis.git
-cd RedditCountryHappinessAnalysis
+git clone https://github.com/BrplT0/Reddit-Sentinel-Pipeline.git
+cd Reddit-Sentinel-Pipeline
 
 # 2. Create virtual environment
 python -m venv venv
